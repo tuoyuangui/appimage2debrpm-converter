@@ -1,0 +1,10 @@
+{
+    "maintainer": "Your Name <email@example.com>",
+    "section": "graphics",
+    "priority": "optional",
+    "license": "GPL-3.0",
+    "homepage": "https://example.com",
+    "depends": ["libgtk-3-0", "libqt5core5a"],
+    "requires": ["glibc", "libgcc"],
+    "architecture": "amd64"
+} 
