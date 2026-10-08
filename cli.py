@@ -57,18 +57,6 @@ def create_parser() -> argparse.ArgumentParser:
     )
     
     config_group.add_argument(
-        '--section',
-        default='misc',
-        help='DEB包分类 (默认: misc)'
-    )
-    
-    config_group.add_argument(
-        '--priority',
-        default='optional',
-        help='DEB包优先级 (默认: optional)'
-    )
-    
-    config_group.add_argument(
         '--license',
         help='软件许可证'
     )
@@ -76,12 +64,6 @@ def create_parser() -> argparse.ArgumentParser:
     config_group.add_argument(
         '--homepage',
         help='项目主页URL'
-    )
-    
-    config_group.add_argument(
-        '--depends',
-        nargs='*',
-        help='依赖包列表 (用空格分隔)'
     )
     
     config_group.add_argument(
@@ -161,21 +143,11 @@ def merge_config(args: argparse.Namespace) -> Dict[str, Any]:
     if args.maintainer:
         config['maintainer'] = args.maintainer
     
-    if args.section:
-        config['section'] = args.section
-    
-    if args.priority:
-        config['priority'] = args.priority
-    
     if args.license:
         config['license'] = args.license
     
     if args.homepage:
         config['homepage'] = args.homepage
-    
-    if args.depends:
-        config['depends'] = args.depends
-        config['requires'] = args.depends  # RPM使用requires
     
     if args.architecture:
         config['architecture'] = args.architecture
@@ -232,11 +204,25 @@ def print_summary(args: argparse.Namespace, config: Dict[str, Any]) -> None:
     
     if config:
         print("\n包配置:")
-        for key, value in config.items():
-            if value:
-                print(f"  {key}: {value}")
+        _print_config_dict(config, indent="  ")
     
     print("=" * 60)
+
+
+def _print_config_dict(config: Dict[str, Any], indent: str) -> None:
+    """
+    递归打印配置字典，嵌套子对象（deb/rpm）缩进显示
+    
+    Args:
+        config: 配置字典
+        indent: 缩进字符串
+    """
+    for key, value in config.items():
+        if isinstance(value, dict):
+            print(f"{indent}{key}:")
+            _print_config_dict(value, indent + "  ")
+        elif value:
+            print(f"{indent}{key}: {value}")
 
 
 def parse_arguments() -> tuple[argparse.Namespace, Dict[str, Any]]:

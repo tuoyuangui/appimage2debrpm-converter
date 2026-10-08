@@ -73,9 +73,7 @@ python main.py app.AppImage --output ./packages/
 python main.py app.AppImage \
     --format deb \
     --maintainer "Your Name <email@example.com>" \
-    --section "graphics" \
-    --homepage "https://example.com" \
-    --depends "libgtk-3-0" "libqt5core5a"
+    --homepage "https://example.com"
 
 # 使用配置文件
 python main.py app.AppImage --config config.json
@@ -91,14 +89,27 @@ python main.py app.AppImage --verbose --keep-temp
 ```json
 {
     "maintainer": "Your Name <email@example.com>",
-    "section": "graphics",
-    "priority": "optional",
     "license": "GPL-3.0",
     "homepage": "https://example.com",
-    "depends": ["libgtk-3-0", "libqt5core5a"],
+    "deb": {
+        "section": "graphics",
+        "priority": "optional",
+        "depends": ["libgtk-3-0", "libqt5core5a"],
+        "requires": []
+    },
+    "rpm": {
+        "section": "Applications/Graphics",
+        "depends": [],
+        "requires": ["glibc", "qt5-qtbase"]
+    },
     "architecture": "amd64"
 }
 ```
+
+> 说明：`deb` 与 `rpm` 为两个独立的子配置对象，各自包含
+> `section`（分类，DEB 的 Section 字段 / RPM 的 Group 字段）、
+> `depends`（依赖）与 `requires`（需求）等字段，分别作用于
+> DEB 包与 RPM 包的构建，可配置不同的值。
 
 ## 命令行选项
 
@@ -119,12 +130,8 @@ python main.py app.AppImage --verbose --keep-temp
 包配置选项:
   -m, --maintainer MAINTAINER
                         维护者信息 (格式: "姓名 <邮箱>")
-  --section SECTION     DEB包分类 (默认: misc)
-  --priority PRIORITY   DEB包优先级 (默认: optional)
   --license LICENSE     软件许可证
   --homepage HOMEPAGE   项目主页URL
-  --depends [DEPENDS ...]
-                        依赖包列表 (用空格分隔)
   --architecture ARCH   目标架构 (如: amd64, x86_64)
 ```
 
@@ -135,9 +142,9 @@ appimage2deb-converter/
 ├── core/                   # 核心模块
 │   ├── appimage.py        # AppImage处理
 │   └── package_builder.py # 包构建器基类
-├── deb/                   # DEB包构建
+├── local_deb/              # DEB包构建（本地实现，避免调用系统库）
 │   └── deb_builder.py
-├── rpm/                   # RPM包构建
+├── local_rpm/              # RPM包构建（本地实现，避免调用系统库）
 │   └── rpm_builder.py
 ├── utils/                 # 工具模块
 │   ├── command_executor.py
